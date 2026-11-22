@@ -1,0 +1,2 @@
+input_observations,excluded_input_observations,complete_observations,training_window,test_block_length,full_test_blocks,test_observations_used,trailing_observations_not_tested,regime_rule,max_daily_add_up_error_usd
+2973,1,2972,250,21,129,2709,13,high if trailing 21-day training-window curve RMS >= median of all available trailing 21-day RMS values in training window; else low,6.984919309616089e-10
