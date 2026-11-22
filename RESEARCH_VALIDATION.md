@@ -2,7 +2,7 @@
 
 ## Scope and conclusion
 
-This report independently audits Steps 1–5 using the cleaned Treasury files and fresh rolling PCA fits. It does not modify the main research methodology, prior outputs, or the original portfolio example.
+This report independently audits the rolling PCA, portfolio attribution, robustness, and factor-selection analyses developed across Steps 1–7 using the cleaned public Treasury files and fresh rolling PCA fits. It does not modify the main research methodology, prior outputs, or the original portfolio example.
 
 Overall assessment: the core calculations are reproducible and internally consistent. The strongest portfolio-level conclusion is supported: the 2Y/5Y/10Y butterfly is much harder to reconstruct with PC1–PC3 than the bullet, barbell, or steepener, and its omitted PC4–PC7 exposure remains high out of sample. The original stability conclusion requires qualification: adjacent overlapping windows produce similarity near 0.999, but non-overlapping and widely separated windows show materially lower similarity. The adjacent-window result should not be presented as evidence that the factor structure is globally stable across the entire sample.
 
@@ -115,7 +115,7 @@ The uncertainty analysis supports a large butterfly gap under this block-bootstr
 
 Step 6 tests whether the number of factors should be selected for the portfolio being measured rather than from overall Treasury yield variance. It compares fixed PC1–PC3 and fixed PC1–PC5 baselines with four training-only selection rules: the minimum consecutive PC1–PCk set explaining at least 95% or 99% of yield variance, and the minimum consecutive PC1–PCk set explaining at least 95% or 99% of each portfolio's training-window P&L variance. An all-seven-factor model is retained only as a numerical reconstruction check.
 
-Every method uses the same 129 non-overlapping 21-trading-day test blocks, a 250-trading-day rolling training window, training-window means, and PCA fits estimated before the corresponding test block. Thus, factor selection does not use test-period observations. The analysis covers the four hypothetical DV01 portfolios used in Steps 3–5. The complete outputs are [`results/step6_strategy_summary.csv`](./results/step6_strategy_summary.csv), [`results/step6_training_factor_selection.csv`](./results/step6_training_factor_selection.csv), [`results/step6_factor_count_distribution.csv`](./results/step6_factor_count_distribution.csv), [`results/step6_regime_strategy_summary.csv`](./results/step6_regime_strategy_summary.csv), [`results/step6_paired_bootstrap_ci.csv`](./results/step6_paired_bootstrap_ci.csv), and [`results/step6_verification.csv`](./results/step6_verification.csv).
+Every method uses the same 129 non-overlapping 21-trading-day test blocks, a 250-trading-day rolling training window, training-window means, and PCA fits estimated before the corresponding test block. Thus, factor selection does not use test-period observations. The analysis covers the four hypothetical DV01 portfolios used throughout Steps 3–7. The complete outputs are [`results/step6_strategy_summary.csv`](./results/step6_strategy_summary.csv), [`results/step6_training_factor_selection.csv`](./results/step6_training_factor_selection.csv), [`results/step6_factor_count_distribution.csv`](./results/step6_factor_count_distribution.csv), [`results/step6_regime_strategy_summary.csv`](./results/step6_regime_strategy_summary.csv), [`results/step6_paired_bootstrap_ci.csv`](./results/step6_paired_bootstrap_ci.csv), and [`results/step6_verification.csv`](./results/step6_verification.csv).
 
 ### Verified out-of-sample comparison
 
@@ -189,11 +189,21 @@ The audit writes:
 
 Charts are prefixed `quality_review_` in [`figures/`](./figures/). The audit implementation is [`src/quality_review.py`](./src/quality_review.py). No files were committed or pushed.
 
+AI-assisted development contributed to implementation review, documentation, and visualization refinement; the research conclusions remain grounded in the checked-in scripts, public data, and verified output files.
+
 ## 10. Step 7: model complexity, stability, and risk coverage
 
 ### Methodology
 
 Step 7 evaluates whether portfolio-specific factor selection provides enough additional out-of-sample P&L coverage to justify added complexity. It uses the same cleaned public Treasury daily-change data, four synthetic DV01 portfolios, 250-day training windows, 21-day non-overlapping test blocks, training-only PCA fitting and selection, and 129 common test blocks as Step 6. The comparison now explicitly includes fixed PC1–PC3 and fixed PC1–PC5, yield-variance 95% and 99%, portfolio-P&L variance 95% and 99%, and all-seven as a saturated numerical check. Selection criteria are training-window quantities; explained variance, RMSE, and normalized RMSE are test-period metrics.
+
+### Economic and mathematical interpretation
+
+Let \(\Delta y_t\) be the centered vector of daily Treasury yield changes in basis points and \(\Sigma=\operatorname{Cov}(\Delta y_t)\). Covariance PCA decomposes \(\Sigma\) into orthonormal eigenvectors \(v_j\) and scores \(s_{j,t}=v_j^{\mathsf T}\Delta y_t\). Using covariance rather than correlation preserves the observed volatility scale across maturities, which is appropriate for first-order DV01 P&L: a one-basis-point move has an economically meaningful, maturity-specific dollar impact.
+
+For a portfolio with DV01 vector \(d\), first-order P&L is approximately \(p_t\approx-d^{\mathsf T}\Delta y_t\), and exposure to PC \(j\) is proportional to \(-d^{\mathsf T}v_j\). Thus, high variance explained for the yield panel does not guarantee high P&L variance explained for every portfolio: a portfolio can be relatively insensitive to dominant yield modes while loading on lower-variance, higher-order curve shapes. The butterfly’s long-short-long DV01 profile is a second-difference-like exposure across 2Y, 5Y, and 10Y, making this mismatch especially plausible. Empirically, its fixed PC1–PC3 coverage is 65.86%, versus 86.19% with PC1–PC5 and 98.62% with portfolio-aware 95% selection. The DV01/eigenvector explanation is economic interpretation consistent with the model; the verified claims are the saved out-of-sample metrics.
+
+Training-only estimation is essential: using test-period P&L to choose the retained count would contaminate the comparison. The 21-day test blocks are non-overlapping, while adjacent 250-day estimation windows share observations; consequently, adjacent-window stability is local persistence, not independent evidence of a globally invariant factor basis. The block bootstrap preserves within-block dependence but treats blocks as exchangeable and cannot remove regime persistence, structural breaks, or selection uncertainty. All reported coverage measures are historical out-of-sample reconstruction metrics, not forecasts of future returns or evidence of trading profitability.
 
 For each portfolio and strategy, Step 7 reports average factor count, out-of-sample explained P&L variance, reconstruction RMSE, normalized RMSE, marginal improvement versus fixed PC1–PC3, improvement per added factor, count distributions, count-change frequency, average absolute count changes, and high/low-volatility differences. Pareto efficiency is defined retrospectively using average factor count and out-of-sample normalized RMSE: a strategy is efficient when no alternative uses fewer or equal factors and has equal or lower normalized RMSE with at least one strict improvement. This is a descriptive frontier, not a test-data optimization claim.
 

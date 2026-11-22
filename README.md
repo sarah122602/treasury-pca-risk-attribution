@@ -32,6 +32,10 @@ Portfolio-aware selection addresses that gap: 95% selection captures 98.62% of b
 
 The small multiples show why factor count is portfolio-dependent: the butterfly has a steep coverage gain from additional factors, while the other portfolios are already near 100% with simpler models.
 
+## Practical implication
+
+Risk attribution systems should evaluate factors against the portfolio P&L they are meant to explain, not only against aggregate yield-curve variance. In this sample, a transparent three-factor model is sufficient for most synthetic portfolios, while the butterfly requires higher-order factors; portfolio-aware selection is therefore a targeted tool rather than a universal replacement.
+
 ## Baseline portfolio coverage
 
 | Synthetic portfolio | OOS P&L variance explained | OOS normalized RMSE |
@@ -46,7 +50,7 @@ The small multiples show why factor count is portfolio-dependent: the butterfly 
 ## Methodology and data
 
 - Public Treasury par yields for 2Y, 3Y, 5Y, 7Y, 10Y, 20Y, and 30Y.
-- Covariance PCA on daily changes in basis points; no standardization or imputation.
+- Covariance PCA on daily changes in basis points; no standardization or imputation. Preserving native volatility scales is appropriate because first-order DV01 P&L translates basis-point moves into maturity-specific dollar risk.
 - Four synthetic DV01 portfolios: bullet, barbell, steepener, and butterfly.
 - Rolling **250-day training windows** followed by **non-overlapping 21-day test blocks**.
 - PCA fitting, volatility-regime labeling, and factor selection use training data only.
@@ -78,3 +82,5 @@ python scripts/08_create_showcase_figures.py
 The offline option reuses the checked-in public Treasury dataset without rewriting it. Omit it in Step 1 to refresh data directly from the U.S. Treasury website. Numerical outputs are in [results/](./results/), and research charts are in [figures/](./figures/). The original [figures/portfolio_risk.py](./figures/portfolio_risk.py) example is preserved.
 
 The workflow was inspired by the public [yield-curve-pca repository by GasparCoquet](https://github.com/GasparCoquet/yield-curve-pca). This project’s implementation and portfolio attribution are independent.
+
+AI-assisted development contributed to implementation review, documentation, and visualization refinement; all research claims remain tied to the reproducible scripts, public data, and checked-in outputs.
