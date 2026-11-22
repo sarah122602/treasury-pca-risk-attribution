@@ -68,7 +68,7 @@ DV01:
 - `Bullet_10Y`: +$100,000 at 10Y.
 - `Barbell_2Y_30Y`: +$50,000 at 2Y and +$50,000 at 30Y.
 - `Steepener_2Y10Y`: +$50,000 at 2Y and -$50,000 at 10Y.
-- `Butterfly_2Y10Y30Y`: +$50,000 at 2Y, -$100,000 at 10Y, and +$50,000 at 30Y.
+- `Butterfly_2Y5Y10Y`: +$50,000 at 2Y, -$100,000 at 5Y, and +$50,000 at 10Y.
 
 Positive DV01 means a long-duration exposure. Daily first-order P&L is
 `-sum(DV01 × yield change in bp)`. PC1, PC2, and PC3 P&L contributions are

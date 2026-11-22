@@ -20,7 +20,7 @@ PORTFOLIOS = pd.DataFrame(
         # Long 2Y / short 10Y: profits when the 2Y cheapens relative to 10Y.
         "Steepener_2Y10Y": [50_000, 0, 0, 0, -50_000, 0, 0],
         # Long wings / short belly, with zero net DV01.
-        "Butterfly_2Y10Y30Y": [50_000, 0, 0, 0, -100_000, 0, 50_000],
+        "Butterfly_2Y5Y10Y": [50_000, 0, -100_000, 0, 50_000, 0, 0],
     },
     index=TENORS,
 )
