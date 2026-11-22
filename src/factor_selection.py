@@ -14,7 +14,7 @@ from src.regime_stability import _training_regime
 from src.walk_forward_attribution import TEST_BLOCK, TRAINING_WINDOW
 
 
-STRATEGIES = ("fixed_3", "yield_95", "yield_99", "portfolio_95", "portfolio_99", "all_7")
+STRATEGIES = ("fixed_3", "fixed_5", "yield_95", "yield_99", "portfolio_95", "portfolio_99", "all_7")
 THRESHOLDS = (0.95, 0.99)
 BOOTSTRAP_REPETITIONS = 2000
 BOOTSTRAP_SEED = 20261122
@@ -100,6 +100,7 @@ def _evaluate_blocks(changes: pd.DataFrame, dates: pd.Series) -> tuple[pd.DataFr
             training_mean_pnl = float(-(pca.mean_ @ dv01))
             strategy_counts = {
                 "fixed_3": counts["fixed_3"],
+                "fixed_5": 5,
                 "yield_95": counts["yield_95"],
                 "yield_99": counts["yield_99"],
                 "portfolio_95": counts[f"portfolio_95__{portfolio}"],

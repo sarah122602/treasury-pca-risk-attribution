@@ -1,0 +1,5 @@
+check,passed,value,detail
+same_test_dates_across_strategies,True,2709.0,identical out-of-sample dates
+pnl_prediction_plus_error_reconciles,True,0.0,actual P&L = reconstructed P&L + residual
+all_step6_checks_passed,True,8.0,inherited Step 6 training-only and block checks
+selection_counts_in_range,True,3612.0,consecutive PC1-to-PCk selections

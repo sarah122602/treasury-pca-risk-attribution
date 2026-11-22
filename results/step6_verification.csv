@@ -2,7 +2,7 @@ check,passed,value,detail
 input_rows,True,2973.0,raw daily-change rows
 excluded_rows,True,1.0,initial missing-difference row only
 same_test_observations,True,2709.0,all strategies use identical test dates
-selected_counts_in_range,True,3096.0,all selections are consecutive PC1-to-PCk models
+selected_counts_in_range,True,3612.0,all selections are consecutive PC1-to-PCk models
 test_blocks_non_overlapping,True,129.0,test starts advance exactly one block
 training_ends_at_test_start,True,129.0,PCA fits end before test observations
 all_7_reconstruction,True,7.105427357601002e-14,all-seven yield reconstruction is numerical identity

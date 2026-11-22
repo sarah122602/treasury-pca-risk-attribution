@@ -113,7 +113,7 @@ The uncertainty analysis supports a large butterfly gap under this block-bootstr
 
 ### Research question and design
 
-Step 6 tests whether the number of factors should be selected for the portfolio being measured rather than from overall Treasury yield variance. It compares a fixed three-factor baseline with four training-only selection rules: the minimum consecutive PC1–PCk set explaining at least 95% or 99% of yield variance, and the minimum consecutive PC1–PCk set explaining at least 95% or 99% of each portfolio's training-window P&L variance. An all-seven-factor model is retained only as a numerical reconstruction check.
+Step 6 tests whether the number of factors should be selected for the portfolio being measured rather than from overall Treasury yield variance. It compares fixed PC1–PC3 and fixed PC1–PC5 baselines with four training-only selection rules: the minimum consecutive PC1–PCk set explaining at least 95% or 99% of yield variance, and the minimum consecutive PC1–PCk set explaining at least 95% or 99% of each portfolio's training-window P&L variance. An all-seven-factor model is retained only as a numerical reconstruction check.
 
 Every method uses the same 129 non-overlapping 21-trading-day test blocks, a 250-trading-day rolling training window, training-window means, and PCA fits estimated before the corresponding test block. Thus, factor selection does not use test-period observations. The analysis covers the four hypothetical DV01 portfolios used in Steps 3–5. The complete outputs are [`results/step6_strategy_summary.csv`](./results/step6_strategy_summary.csv), [`results/step6_training_factor_selection.csv`](./results/step6_training_factor_selection.csv), [`results/step6_factor_count_distribution.csv`](./results/step6_factor_count_distribution.csv), [`results/step6_regime_strategy_summary.csv`](./results/step6_regime_strategy_summary.csv), [`results/step6_paired_bootstrap_ci.csv`](./results/step6_paired_bootstrap_ci.csv), and [`results/step6_verification.csv`](./results/step6_verification.csv).
 
@@ -166,7 +166,7 @@ The statement that PCA is “highly stable” needs narrower wording. The report
 
 > Adjacent rolling PCA windows are very similar, partly because neighboring 250-day windows share 229 observations. Non-overlapping and widely separated windows show lower PC1–PC3 similarity, especially for PC3, so the factor basis is locally persistent but not globally invariant.
 
-No README changes were made during this audit.
+The README was subsequently updated with the Step 7 executive finding and figure.
 
 ## 9. Reproducibility and output map
 
@@ -188,3 +188,52 @@ The audit writes:
 - [`quality_review_bootstrap_ci.csv`](./results/quality_review_bootstrap_ci.csv)
 
 Charts are prefixed `quality_review_` in [`figures/`](./figures/). The audit implementation is [`src/quality_review.py`](./src/quality_review.py). No files were committed or pushed.
+
+## 10. Step 7: model complexity, stability, and risk coverage
+
+### Methodology
+
+Step 7 evaluates whether portfolio-specific factor selection provides enough additional out-of-sample P&L coverage to justify added complexity. It uses the same cleaned public Treasury daily-change data, four synthetic DV01 portfolios, 250-day training windows, 21-day non-overlapping test blocks, training-only PCA fitting and selection, and 129 common test blocks as Step 6. The comparison now explicitly includes fixed PC1–PC3 and fixed PC1–PC5, yield-variance 95% and 99%, portfolio-P&L variance 95% and 99%, and all-seven as a saturated numerical check. Selection criteria are training-window quantities; explained variance, RMSE, and normalized RMSE are test-period metrics.
+
+For each portfolio and strategy, Step 7 reports average factor count, out-of-sample explained P&L variance, reconstruction RMSE, normalized RMSE, marginal improvement versus fixed PC1–PC3, improvement per added factor, count distributions, count-change frequency, average absolute count changes, and high/low-volatility differences. Pareto efficiency is defined retrospectively using average factor count and out-of-sample normalized RMSE: a strategy is efficient when no alternative uses fewer or equal factors and has equal or lower normalized RMSE with at least one strict improvement. This is a descriptive frontier, not a test-data optimization claim.
+
+### Verified results
+
+| Portfolio | Strategy | Avg factors | OOS explained variance | Normalized RMSE | Change vs fixed 3 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 10Y bullet | Fixed PC1–PC3 | 3.00 | 98.86% | 0.107 | baseline |
+| 10Y bullet | Fixed PC1–PC5 | 5.00 | 99.31% | 0.083 | +0.45 pp |
+| 10Y bullet | Portfolio 95% | 1.16 | 96.95% | 0.175 | -1.90 pp |
+| 10Y bullet | Portfolio 99% | 4.36 | 99.22% | 0.088 | +0.36 pp |
+| 2Y/30Y barbell | Fixed PC1–PC3 | 3.00 | 99.71% | 0.054 | baseline |
+| 2Y/30Y barbell | Fixed PC1–PC5 | 5.00 | 99.87% | 0.036 | +0.17 pp |
+| 2Y/30Y barbell | Portfolio 95% | 1.46 | 97.36% | 0.162 | -2.35 pp |
+| 2Y/30Y barbell | Portfolio 99% | 3.02 | 99.71% | 0.054 | +0.00 pp |
+| 2Y/10Y steepener | Fixed PC1–PC3 | 3.00 | 97.65% | 0.153 | baseline |
+| 2Y/10Y steepener | Fixed PC1–PC5 | 5.00 | 98.49% | 0.123 | +0.84 pp |
+| 2Y/10Y steepener | Portfolio 95% | 3.00 | 97.65% | 0.153 | +0.00 pp |
+| 2Y/10Y steepener | Portfolio 99% | 6.08 | 99.41% | 0.077 | +1.76 pp |
+| 2Y/5Y/10Y butterfly | Fixed PC1–PC3 | 3.00 | 65.86% | 0.584 | baseline |
+| 2Y/5Y/10Y butterfly | Fixed PC1–PC5 | 5.00 | 86.19% | 0.372 | +20.33 pp |
+| 2Y/5Y/10Y butterfly | Portfolio 95% | 5.64 | 98.62% | 0.117 | +32.77 pp |
+| 2Y/5Y/10Y butterfly | Portfolio 99% | 6.30 | 99.79% | 0.046 | +33.93 pp |
+
+The butterfly benefits most from additional factors. Fixed PC1–PC5 adds 20.33 percentage points of explained variance, and portfolio-aware 95% adds 32.77 points with 5.64 factors on average. Portfolio-aware 99% adds only 1.17 further points over portfolio-aware 95% while increasing average complexity to 6.30 factors. This makes portfolio-aware 95% the clearest historical trade-off for the butterfly: it captures almost all of the 99% coverage gain without using nearly all seven factors. For the bullet and barbell, the fixed three-factor model is already highly accurate; portfolio-aware 95% is worse, and portfolio-aware 99% provides only 0.36 and 0.00 percentage points of improvement. The steepener gains 1.76 points at portfolio-aware 99%, but at 6.08 factors, so the operational value of that detail must justify the complexity.
+
+All-seven reconstruction is numerically exact but saturated and is not a practical attribution recommendation. The fixed PC1–PC5 comparison is a meaningful pre-specified complexity benchmark, while yield-99 remains a yield-variance-based adaptive comparator. No strategy is declared universally best solely because it has the highest historical accuracy.
+
+### Stability and volatility regimes
+
+Portfolio-aware 95% count changes between adjacent blocks occurred in 4.7% of transitions for the bullet, 3.9% for the barbell, 0% for the steepener, and 16.4% for the butterfly. Portfolio-aware 99% changed more often for the bullet (24.2%), steepener (19.5%), and butterfly (26.6%), but not the barbell (3.1%). Average absolute count changes under portfolio-aware 95% were 0.05, 0.06, 0.00, and 0.17 factors, respectively; under 99% they were 0.26, 0.03, 0.21, and 0.30.
+
+The high-minus-low volatility difference in average selected count was small for the butterfly (-0.01 factors for both thresholds). It was +0.10 and +0.16 for the bullet at 95% and 99%, +0.19 and +0.03 for the barbell, and 0.00 and -0.18 for the steepener. Therefore, volatile periods do not create a broad, substantial increase in selected factor count in this sample, although the 99% rule is less stable through time for several portfolios. Regime labels remain ex ante training-window classifications; the 129 blocks are not independent regime experiments.
+
+### Uncertainty and verification
+
+The paired block-bootstrap comparisons from Step 6 are carried into [`results/step7_paired_bootstrap_ci.csv`](./results/step7_paired_bootstrap_ci.csv). For the butterfly versus fixed PC1–PC3, portfolio-aware 95% improves explained variance by 32.77 percentage points with a 95% block-bootstrap interval of [29.98, 35.97] and reduces RMSE by about $61,170 with an interval of [$-66,222, $-56,576]. Portfolio-aware 99% improves explained variance by 33.93 points with an interval of [31.17, 37.13] and reduces RMSE by about $70,521 with an interval of [$-75,149, $-66,308]. These intervals preserve within-block dependence but assume exchangeable blocks and do not resolve regime persistence, structural breaks, or selection risk; they are not claims of prospective statistical significance.
+
+The Step 7 verification table confirms identical 2,709 test observations across strategies, exact actual-P&L/reconstruction/residual reconciliation (maximum absolute error 0.0 USD in the saved calculations), all inherited Step 6 training-only/block checks, and all factor counts within PC1–PC7. Outputs are [`results/step7_strategy_comparison.csv`](./results/step7_strategy_comparison.csv), [`results/step7_factor_count_stability.csv`](./results/step7_factor_count_stability.csv), [`results/step7_factor_count_distribution.csv`](./results/step7_factor_count_distribution.csv), [`results/step7_regime_strategy_summary.csv`](./results/step7_regime_strategy_summary.csv), [`results/step7_pareto_strategies.csv`](./results/step7_pareto_strategies.csv), [`results/step7_paired_bootstrap_ci.csv`](./results/step7_paired_bootstrap_ci.csv), and [`results/step7_verification.csv`](./results/step7_verification.csv). Charts are `step7_accuracy_vs_complexity.png`, `step7_marginal_improvement_per_factor.png`, `step7_factor_count_stability.png`, and `step7_complexity_risk_coverage.png` in [`figures/`](./figures/). The implementation is [`src/step7_complexity.py`](./src/step7_complexity.py), run by [`scripts/07_complexity_stability.py`](./scripts/07_complexity_stability.py).
+
+### Practical decision framework
+
+For the bullet, retain fixed PC1–PC3 unless the small historical gain from PC1–PC5 or portfolio-aware 99% is worth added operational complexity. For the barbell, fixed PC1–PC3 is preferred because coverage is already 99.71% and portfolio-aware 99% is effectively tied. For the steepener, fixed PC1–PC3 is the simple stable baseline; portfolio-aware 99% is a defensible higher-detail retrospective alternative, not an automatic choice. For the butterfly, portfolio-aware 95% is the most reasonable historical compromise: fixed PC1–PC3 undercovers risk, fixed PC1–PC5 improves materially but remains incomplete, and portfolio-aware 99% adds relatively little coverage beyond portfolio-aware 95% at higher complexity. These recommendations are conditional on synthetic portfolios, linear DV01 P&L, the seven-tenor par-yield panel, the selected historical sample, and the stated walk-forward design.

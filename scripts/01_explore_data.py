@@ -7,6 +7,7 @@ regression, and it never fills missing observations.
 from __future__ import annotations
 
 import io
+import argparse
 import re
 from datetime import date
 from pathlib import Path
@@ -102,18 +103,20 @@ def clean_yields(raw: pd.DataFrame) -> pd.DataFrame:
     return selected.reset_index(drop=True)
 
 
-def save_exploration_outputs(yields: pd.DataFrame) -> None:
+def save_exploration_outputs(yields: pd.DataFrame, write_data: bool = True) -> None:
     """Save cleaned data, changes, and the two Step 1 figures."""
     DATA_DIR.mkdir(exist_ok=True)
     FIGURES_DIR.mkdir(exist_ok=True)
 
-    yields.to_csv(DATA_DIR / "treasury_par_yields.csv", index=False, date_format="%Y-%m-%d")
+    if write_data:
+        yields.to_csv(DATA_DIR / "treasury_par_yields.csv", index=False, date_format="%Y-%m-%d")
     changes = yields.set_index("Date")[TENORS].diff() * 100.0
-    changes.reset_index().to_csv(
-        DATA_DIR / "treasury_daily_changes_bp.csv",
-        index=False,
-        date_format="%Y-%m-%d",
-    )
+    if write_data:
+        changes.reset_index().to_csv(
+            DATA_DIR / "treasury_daily_changes_bp.csv",
+            index=False,
+            date_format="%Y-%m-%d",
+        )
 
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(13, 7))
@@ -136,15 +139,31 @@ def save_exploration_outputs(yields: pd.DataFrame) -> None:
 
 
 def main() -> None:
-    """Download through the latest available calendar year and report results."""
-    frames: list[pd.DataFrame] = []
-    latest_year = date.today().year
-    for year in range(START_YEAR, latest_year + 1):
-        print(f"Downloading Treasury data for {year} ...")
-        frames.append(download_year(year, inspect_response=not frames))
+    """Download Treasury data or reuse the checked-in public dataset offline."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Reuse data/treasury_par_yields.csv and regenerate Step 1 figures without network access.",
+    )
+    args = parser.parse_args()
 
-    yields = clean_yields(pd.concat(frames, ignore_index=True))
-    save_exploration_outputs(yields)
+    if args.offline:
+        source = DATA_DIR / "treasury_par_yields.csv"
+        if not source.exists():
+            raise FileNotFoundError(f"Offline mode requires {source}")
+        yields = clean_yields(pd.read_csv(source))
+        save_exploration_outputs(yields, write_data=False)
+        print(f"Reused public Treasury data from {source}")
+    else:
+        frames: list[pd.DataFrame] = []
+        latest_year = date.today().year
+        for year in range(START_YEAR, latest_year + 1):
+            print(f"Downloading Treasury data for {year} ...")
+            frames.append(download_year(year, inspect_response=not frames))
+
+        yields = clean_yields(pd.concat(frames, ignore_index=True))
+        save_exploration_outputs(yields)
 
     changes = yields.set_index("Date")[TENORS].diff() * 100.0
     print(f"\nRows: {len(yields):,}")
@@ -155,8 +174,9 @@ def main() -> None:
     print(yields[TENORS].describe().round(4).to_string())
     print("\nDaily-change summary statistics (basis points):")
     print(changes.describe().round(4).to_string())
-    print("\nSaved data/treasury_par_yields.csv")
-    print("Saved data/treasury_daily_changes_bp.csv")
+    if not args.offline:
+        print("\nSaved data/treasury_par_yields.csv")
+        print("Saved data/treasury_daily_changes_bp.csv")
     print("Saved figures/treasury_yield_history.png")
     print("Saved figures/treasury_yield_correlation.png")
 
