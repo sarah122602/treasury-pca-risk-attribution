@@ -16,7 +16,11 @@ The study uses public U.S. Treasury par yields, daily yield changes, and four sy
 - Portfolio-aware selection is not uniformly better. Portfolio-aware 95% reduces coverage for the 10Y bullet to 96.95% and the 2Y/30Y barbell to 97.36%, while fixed PC1–PC3 already explains 98.86% and 99.71%, respectively.
 - The practical conclusion is portfolio-specific: use a simple three-factor attribution for portfolios already well covered by PC1–PC3; consider portfolio-aware 95% for the butterfly when higher-order curve risk must be represented. These are retrospective research recommendations, not prospective model-selection claims.
 
-![Portfolio-level model complexity versus historical risk coverage](./figures/step7_complexity_risk_coverage.png)
+### Figure 1 — Portfolio-level PCA coverage gap
+
+![Portfolio-level PCA coverage gap](./figures/showcase_portfolio_coverage_gap.png)
+
+The fixed three-factor baseline covers the bullet, barbell, and steepener well, but leaves a clear coverage gap for the butterfly. The contrast is portfolio-specific P&L risk, not a failure of PCA to describe the yield panel overall.
 
 ## Baseline portfolio coverage
 
@@ -38,7 +42,17 @@ The study uses public U.S. Treasury par yields, daily yield changes, and four sy
 - PCA fitting, volatility-regime labeling, and factor selection use training data only.
 - Step 7 compares fixed PC1–PC3, fixed PC1–PC5, yield-variance thresholds, portfolio-P&L thresholds, and the saturated all-seven reconstruction check.
 
-![Butterfly accuracy improves with higher-order factors](./figures/step7_accuracy_vs_complexity.png)
+### Figure 2 — Butterfly risk coverage improvement
+
+![Butterfly risk coverage improvement](./figures/showcase_butterfly_coverage_improvement.png)
+
+Adding PC4–PC5 materially improves butterfly reconstruction. Portfolio-aware 95% captures 98.62% of P&L variance with 5.64 average factors; moving to 99% adds only 1.16 percentage points while requiring 0.66 more factors.
+
+### Figure 3 — Model complexity versus historical risk coverage
+
+![Model complexity versus historical risk coverage](./figures/showcase_complexity_vs_coverage.png)
+
+The small multiples make the portfolio-specific trade-off visible: the butterfly has a steep coverage gain from additional factors, while the bullet and barbell are already near 100% with simpler models.
 
 ## Limitations
 
@@ -60,6 +74,7 @@ python scripts/05_regime_stability.py
 python scripts/05_quality_review.py
 python scripts/06_portfolio_factor_selection.py
 python scripts/07_complexity_stability.py
+python scripts/08_create_showcase_figures.py
 ~~~
 
 The offline option reuses the checked-in public Treasury dataset without rewriting it. Omit it in Step 1 to refresh data directly from the U.S. Treasury website. Numerical outputs are in [results/](./results/), and research charts are in [figures/](./figures/). The original [figures/portfolio_risk.py](./figures/portfolio_risk.py) example is preserved.
