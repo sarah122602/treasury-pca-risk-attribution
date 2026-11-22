@@ -53,3 +53,43 @@ It also writes `figures/pca_scree_plot.png`, `figures/pca_loadings_pc1_pc3.png`,
 
 The pre-existing `figures/portfolio_risk.py` is preserved and is unrelated to the PCA analysis.
 
+## Step 3: synthetic Treasury portfolio P&L attribution
+
+Run:
+
+```bash
+python scripts/03_run_pnl_attribution.py
+```
+
+Step 3 reuses the seven-tenor daily Treasury changes and the covariance-based
+PCA model from Step 2. It defines four synthetic portfolios in USD per bp of
+DV01:
+
+- `Bullet_10Y`: +$100,000 at 10Y.
+- `Barbell_2Y_30Y`: +$50,000 at 2Y and +$50,000 at 30Y.
+- `Steepener_2Y10Y`: +$50,000 at 2Y and -$50,000 at 10Y.
+- `Butterfly_2Y10Y30Y`: +$50,000 at 2Y, -$100,000 at 10Y, and +$50,000 at 30Y.
+
+Positive DV01 means a long-duration exposure. Daily first-order P&L is
+`-sum(DV01 × yield change in bp)`. PC1, PC2, and PC3 P&L contributions are
+computed by projecting each daily yield-change vector onto the corresponding
+PCA loading vector. The residual is defined so the attribution adds exactly to
+actual P&L; it includes the sample-mean P&L and the omitted PC4–PC7/reconstruction
+component. Variance shares are in-sample descriptive statistics, not hedging
+performance or forecasts.
+
+Step 3 writes:
+
+- `results/synthetic_portfolio_dv01.csv`
+- `results/daily_pnl_attribution.csv`
+- `results/pnl_attribution_summary.csv`
+- `figures/pnl_variance_attribution.png`
+- `figures/daily_pnl_vs_pca_reconstruction.png`
+- `figures/cumulative_pnl_attribution.png`
+
+These synthetic portfolios are illustrative only. They do not represent actual
+positions, financing, transaction costs, convexity, carry, roll-down, futures
+conversion factors, or proprietary information. PCA signs are arbitrary, so
+economic labels should be based on the observed loading shapes. Hedging and
+out-of-sample testing remain intentionally out of scope.
+
