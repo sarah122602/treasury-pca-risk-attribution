@@ -1,0 +1,4 @@
+comparison_type,comparisons,mean_pc1_loading_similarity,mean_pc2_loading_similarity,mean_pc3_loading_similarity,mean_pc123_subspace_similarity,component_switches_pc1,component_switches_pc2,component_switches_pc3
+adjacent_overlapping,128,0.9996515018389222,0.9990008800423849,0.9967125557759018,0.9990626340272134,0,0,0
+non_overlapping,10,0.9860920211593495,0.9794505556829973,0.9490055191453102,0.9847701592101867,0,0,0
+widely_separated,2,0.9218087887545003,0.8293568116384267,0.7901986071028064,0.9485158113633699,0,0,0

@@ -1,0 +1,11 @@
+entity,metric,observed,bootstrap_lower_95_pct,bootstrap_upper_95_pct,bootstrap_repetitions,bootstrap_unit
+Bullet_10Y,explained_variance_pct,98.85645982560047,98.72185899711032,98.9695127254339,2000,non-overlapping 21-day test block
+Bullet_10Y,rmse_usd,56529.89546547332,53826.1858213014,59424.156638242115,2000,non-overlapping 21-day test block
+Barbell_2Y_30Y,explained_variance_pct,99.7054257628012,99.6476752740999,99.75239722424497,2000,non-overlapping 21-day test block
+Barbell_2Y_30Y,rmse_usd,24907.44245468489,23258.83447663612,26655.881941300006,2000,non-overlapping 21-day test block
+Steepener_2Y10Y,explained_variance_pct,97.65095258886717,97.20713868649248,98.05329531392299,2000,non-overlapping 21-day test block
+Steepener_2Y10Y,rmse_usd,27659.86966945965,26334.02016813797,29102.305831411843,2000,non-overlapping 21-day test block
+Butterfly_2Y5Y10Y,explained_variance_pct,65.85873743579951,62.67728825317771,68.64861175874202,2000,non-overlapping 21-day test block
+Butterfly_2Y5Y10Y,rmse_usd,76528.10643627174,72399.95217936212,81070.99692132573,2000,non-overlapping 21-day test block
+Butterfly_gap,explained_variance_pct,32.883707956789365,30.081616538099155,36.048017552162776,2000,non-overlapping 21-day test block
+Butterfly_gap,rmse_usd,40166.40285136426,37088.146244131894,43446.350379516494,2000,non-overlapping 21-day test block

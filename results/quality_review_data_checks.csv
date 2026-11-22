@@ -1,0 +1,10 @@
+check,passed,value,detail
+yield_date_parse,True,2973.0,all cleaned yield dates parse
+change_date_parse,True,2973.0,all change dates parse
+yield_dates_unique_sorted,True,2973.0,cleaned yield dates are unique and sorted
+change_dates_equal_yield_dates,True,1.0,daily-change rows align one-for-one with yield rows
+yield_missing_values,True,0.0,cleaned yield panel contains no missing maturity observations
+initial_change_missing_values,True,7.0,only the first difference row is missing by construction
+daily_changes_reproduce_first_differences,True,0.0,observed changes equal 100 times yield first differences
+yield_units_plausible_percent,True,5.71,values are plausible percent yields
+change_units_plausible_bp,True,56.99999999999994,values are treated as basis-point changes

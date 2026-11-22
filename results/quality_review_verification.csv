@@ -1,0 +1,16 @@
+check,passed,value,detail
+yield_date_parse,True,2973.0,all cleaned yield dates parse
+change_date_parse,True,2973.0,all change dates parse
+yield_dates_unique_sorted,True,2973.0,cleaned yield dates are unique and sorted
+change_dates_equal_yield_dates,True,1.0,daily-change rows align one-for-one with yield rows
+yield_missing_values,True,0.0,cleaned yield panel contains no missing maturity observations
+initial_change_missing_values,True,7.0,only the first difference row is missing by construction
+daily_changes_reproduce_first_differences,True,0.0,observed changes equal 100 times yield first differences
+yield_units_plausible_percent,True,5.71,values are plausible percent yields
+change_units_plausible_bp,True,56.99999999999994,values are treated as basis-point changes
+walk_forward_test_blocks_non_overlapping,True,129.0,test starts advance exactly one block
+training_ends_before_test_starts,True,129.0,each PCA fit ends immediately before its test block
+all_seven_factor_reconstruction,True,2.3283064365386963e-09,seven-factor reconstruction equals actual P&L
+pca_component_orthogonality,True,1.7763568394002505e-15,training PCA components are orthogonal
+baseline_regime_labels_training_only,True,129.0,baseline labels were created from preceding training windows
+baseline_additive_pnl_reconciliation,True,6.984919309616089e-10,PC1-PC3 plus training mean and residual equal actual P&L
